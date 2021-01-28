@@ -15,7 +15,7 @@ file(GLOB globbed
 include_directories(include)
 include_directories(include/gzip)
 
-set(Torch_DIR "${CMAKE_CURRENT_LIST_DIR}/libtorch/share/cmake/Torch")
+set(Torch_DIR libtorch/share/cmake/Torch)
 find_package(Torch REQUIRED)
 
 add_executable(balrog main.cpp ${globbed} include/tqdm.h include/FastaReader.cpp include/FastaReader.h include/GeneFinder.cpp include/GeneFinder.h)
