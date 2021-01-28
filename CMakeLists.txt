@@ -40,3 +40,9 @@ cmrc_add_resource_library(
         )
 
 target_link_libraries(${PROJECT_NAME} cmakeresources)
+
+install(
+  TARGETS balrog
+  RUNTIME DESTINATION bin
+  LIBRARY DESTINATION lib
+)
