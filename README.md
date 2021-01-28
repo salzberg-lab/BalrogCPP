@@ -55,7 +55,7 @@ Balrog depends on MMseqs2 at runtime to help reduce false positive gene predicti
 
 
 ## Install Balrog via conda (relatively slow performance)
-Currently, the bioconda version of Balrog does not take advantage of AVX2 instructions due to known PyTorch issues and is ~5-10x slower than the version built from source. We are working on a fix.
+Currently, the bioconda version of Balrog does not take advantage of AVX2 instructions due to known PyTorch/LibTorch issues and is ~5-10x slower than the version built from source. We are working on a fix.
 
     conda create -n balrog_env python=3.7 -y
     
