@@ -12,7 +12,7 @@ Preprint available on bioRxiv [here](https://www.biorxiv.org/content/10.1101/202
 
 PLOS Computational Biology publication coming soon...
 
-## Compile Balrog from source (highly recommended for now)
+## Compile Balrog from source (HIGHLY RECOMMENDED for now)
 
 ### Install MMseqs2
 Balrog depends on MMseqs2 at runtime to help reduce false positive gene predictions. Fortunately, MMseqs2 is well supported on both Linux and MacOS. Detailed installation instructions for MMseqs2 can be found on the MMseqs2 GitHub [here](https://github.com/soedinglab/MMseqs2#installation)
