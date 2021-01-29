@@ -40,7 +40,6 @@ Balrog depends on MMseqs2 at runtime to help reduce false positive gene predicti
     cd build
     cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=${PREFIX} ..
     make
-    make install
     export PATH=$(pwd):$PATH
     
     # MacOS
@@ -52,7 +51,6 @@ Balrog depends on MMseqs2 at runtime to help reduce false positive gene predicti
     cd build
     cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=${PREFIX} ..
     make
-    make install
     export PATH=$(pwd):$PATH
 
 
