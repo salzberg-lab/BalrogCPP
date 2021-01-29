@@ -12,6 +12,20 @@ Preprint available on bioRxiv [here](https://www.biorxiv.org/content/10.1101/202
 
 PLOS Computational Biology publication coming soon...
 
+## Install Balrog via conda (relatively slow performance)
+Currently, the bioconda version of Balrog does not take advantage of AVX2 instructions due to known PyTorch/LibTorch issues and is ~5-10x slower than the version built from source. We are working on a fix.
+
+    conda create -n balrog_env python=3.7 -y
+    
+    conda activate balrog_env
+    (alternatively: "source activate balrog_env")
+    
+    conda install balrog -c conda-forge -c bioconda -y
+    conda install pytorch=1.7.1 -c conda-forge -y
+    
+    balrog --help
+
+
 ## Compile Balrog from source (HIGHLY RECOMMENDED for now)
 
 ### Install MMseqs2
@@ -54,18 +68,6 @@ Balrog depends on MMseqs2 at runtime to help reduce false positive gene predicti
     export PATH=$(pwd):$PATH
 
 
-## Install Balrog via conda (relatively slow performance)
-Currently, the bioconda version of Balrog does not take advantage of AVX2 instructions due to known PyTorch/LibTorch issues and is ~5-10x slower than the version built from source. We are working on a fix.
-
-    conda create -n balrog_env python=3.7 -y
-    
-    conda activate balrog_env
-    (alternatively: "source activate balrog_env")
-    
-    conda install balrog -c conda-forge -c bioconda -y
-    conda install pytorch=1.7.1 -c conda-forge -y
-    
-    balrog --help
 
 
 
