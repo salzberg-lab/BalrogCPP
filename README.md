@@ -52,7 +52,7 @@ Balrog depends on MMseqs2 at runtime to help reduce false positive gene predicti
     unzip libtorch-shared-with-deps-1.7.1+cpu.zip
     mkdir build
     cd build
-    cmake -DCMAKE_BUILD_TYPE=Release ..
+    cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=${PREFIX} ..
     make
     export PATH=$(pwd):$PATH
     
@@ -63,7 +63,7 @@ Balrog depends on MMseqs2 at runtime to help reduce false positive gene predicti
     unzip libtorch-macos-1.7.1.zip
     mkdir build
     cd build
-    cmake -DCMAKE_BUILD_TYPE=Release ..
+    cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=${PREFIX} ..
     make
     export PATH=$(pwd):$PATH
 
