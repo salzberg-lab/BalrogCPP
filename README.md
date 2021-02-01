@@ -68,6 +68,7 @@ Balrog depends on MMseqs2 at runtime to help reduce false positive gene predicti
     export PATH=$(pwd):$PATH
 
 Balrog also requires zlib, which is likely already installed on your system. 
+
     # MacOS
     brew install zlib
     
