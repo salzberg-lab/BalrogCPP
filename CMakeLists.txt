@@ -18,6 +18,8 @@ include_directories(include/gzip)
 set(Torch_DIR libtorch/share/cmake/Torch)
 find_package(Torch REQUIRED)
 
+set(CMAKE_INSTALL_RPATH "${CMAKE_CURRENT_LIST_DIR}/libtorch/lib")
+
 add_executable(balrog main.cpp ${globbed} include/tqdm.h include/FastaReader.cpp include/FastaReader.h include/GeneFinder.cpp include/GeneFinder.h)
 
 target_link_libraries(balrog ${TORCH_LIBRARIES})
