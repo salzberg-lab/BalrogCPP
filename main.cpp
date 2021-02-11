@@ -37,6 +37,12 @@ int main(int argc, char* argv[]) {
         exit(0);
     }
 
+    // check input and output paths
+    if (not result.count("in") or not result.count("out")){
+        std::cout << "Please specify input and output paths" << std::endl;
+        exit(0);
+    }
+
     // check translation table
     int table = result["table"].as<int>();
     if (table != 11 and table != 4){
