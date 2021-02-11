@@ -15,6 +15,37 @@ file(GLOB globbed
 include_directories(include)
 include_directories(include/gzip)
 
+
+function(download_file url filename hash_type hash)
+
+if(NOT EXISTS ${filename})
+  file(DOWNLOAD ${url} ${filename}
+       TIMEOUT 60  # seconds
+       EXPECTED_HASH ${hash_type}=${hash}
+       TLS_VERIFY ON)
+endif()
+
+endfunction(download_file)
+
+if (APPLE)
+    download_file(
+        https://download.pytorch.org/libtorch/cpu/libtorch-macos-1.7.1.zip
+        ./libtorch-macos-1.7.1.zip
+        SHA256 75e032a3a65b3dc97feffdc8dc7c2d7c6504e80e63cdefb7ae2ec7458b3ad7e4
+        )
+    execute_process(COMMAND unzip libtorch-macos-1.7.1.zip)
+    execute_process(COMMAND mv libtorch ..)
+else()
+    download_file(
+        https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-1.7.1%2Bcpu.zip
+        ./libtorch-cxx11-abi-shared-with-deps-1.7.1+cpu.zip
+        SHA256 cc2386c30603c0f145904450a2a28f04b8047f3e624e40f859eebc858ff8f2e9
+    )
+    execute_process(COMMAND unzip libtorch-cxx11-abi-shared-with-deps-1.7.1+cpu.zip)
+    execute_process(COMMAND mv libtorch ..)
+endif()
+
+
 set(Torch_DIR libtorch/share/cmake/Torch)
 find_package(Torch REQUIRED)
 
