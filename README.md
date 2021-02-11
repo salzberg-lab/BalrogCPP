@@ -48,7 +48,7 @@ Balrog depends on MMseqs2 at runtime to help reduce false positive gene predicti
     # Linux
     git clone https://github.com/salzberg-lab/BalrogCPP
     cd BalrogCPP
-    wget https://download.pytorch.org/libtorch/cpu/libtorch-shared-with-deps-1.7.1%2Bcpu.zip
+    wget https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-1.7.1%2Bcpu.zip
     unzip libtorch-shared-with-deps-1.7.1+cpu.zip
     mkdir build
     cd build
