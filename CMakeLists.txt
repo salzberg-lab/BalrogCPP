@@ -38,7 +38,7 @@ cmrc_add_resource_library(
         WHENCE data
         data/gene_model_v1.0.pt
         data/TIS_model_v1.0.pt
-        data/reference_genes.tar.gz
+        data/reference_genes.fasta
         )
 
 target_link_libraries(${PROJECT_NAME} cmakeresources)

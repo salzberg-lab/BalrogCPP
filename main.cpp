@@ -88,7 +88,7 @@ int main(int argc, char* argv[]) {
     catch (const c10::Error& e) {
         std::cerr << "error loading the LibTorch gene model\n";
         remove(tmp_genemodel_path);
-        return -1;
+        return 1;
     }
     // clean up temp file
     remove(tmp_genemodel_path);
@@ -114,7 +114,7 @@ int main(int argc, char* argv[]) {
     catch (const c10::Error& e) {
         std::cerr << "error loading the LibTorch TIS model\n";
         remove(tmp_TISmodel_path);
-        return -1;
+        return 1;
     }
     // clean up temp file
     remove(tmp_TISmodel_path);
@@ -137,7 +137,7 @@ int main(int argc, char* argv[]) {
                 std::cout << "Loading reference genes..." << std::endl;
             }
             char *tmp_reference_path = std::tmpnam(nullptr);
-            rc = fs.open("reference_genes.tar.gz");
+            rc = fs.open("reference_genes.fasta");
             stream.open(tmp_reference_path);
             it = rc.begin();
             while (it != rc.end()) {
@@ -145,22 +145,13 @@ int main(int argc, char* argv[]) {
                 it++;
             }
             stream.close();
-            // unzip reference genes
-            std::string command = "tar -xf " + (std::string) tmp_reference_path + " -C " + tmp_dir;
-            int status = std::system(command.c_str());
-            if (status != 0) {
-                std::cerr << "error loading reference genes\n";
-                return -1;
-            }
-            // clean temp file
-            remove(tmp_reference_path);
 
             // create mmseqs reference database and index
-            command = "mmseqs createdb " + ref_fasta_path + " " + ref_db_path;
+            std::string command = "mmseqs createdb " + (std::string)tmp_reference_path + " " + ref_db_path;
             if (not result["verbose"].as<bool>()){
                 command += " -v 0";
             }
-            status = std::system(command.c_str());
+            int status = std::system(command.c_str());
             if (status != 0) {
                 std::cerr << "error creating mmseqs database\n";
                 return -1;
