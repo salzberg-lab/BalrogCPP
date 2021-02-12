@@ -44,7 +44,8 @@ else()
         ./libtorch-shared-with-deps-1.7.1+cpu.zip
         SHA256 549f497415febccfbbfb06efa1d4d18987585f3cae869adb0d0a112c07536af8
     )
-    execute_process(COMMAND unzip libtorch-cxx11-abi-shared-with-deps-1.7.1+cpu.zip)
+    #execute_process(COMMAND unzip libtorch-cxx11-abi-shared-with-deps-1.7.1+cpu.zip)
+    execute_process(COMMAND unzip libtorch-shared-with-deps-1.7.1+cpu.zip)
     execute_process(COMMAND mv libtorch ..)
 endif()
 
