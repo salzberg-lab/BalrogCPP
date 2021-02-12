@@ -37,9 +37,9 @@ if (APPLE)
     execute_process(COMMAND mv libtorch ..)
 else()
     download_file(
-        https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-1.5.0%2Bcpu.zip
-        ./libtorch-cxx11-abi-shared-with-deps-1.5.0+cpu.zip
-        SHA256 3e438237a08099a4bf014335cd0da88708da3a1678aec12a46c67305792b5fa4
+        #https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-1.5.0%2Bcpu.zip
+        #./libtorch-cxx11-abi-shared-with-deps-1.5.0+cpu.zip
+        #SHA256 3e438237a08099a4bf014335cd0da88708da3a1678aec12a46c67305792b5fa4
         
         #https://download.pytorch.org/libtorch/cpu/libtorch-shared-with-deps-1.5.0%2Bcpu.zip
         #./libtorch-shared-with-deps-1.5.0+cpu.zip
@@ -49,11 +49,15 @@ else()
         #./libtorch-shared-with-deps-1.6.0+cpu.zip
         #SHA256 https://download.pytorch.org/libtorch/cpu/libtorch-shared-with-deps-1.5.0%2Bcpu.zip
         
+        https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-1.7.1%2Bcpu.zip
+        ./libtorch-cxx11-abi-shared-with-deps-1.7.1+cpu.zip
+        SHA256 cc2386c30603c0f145904450a2a28f04b8047f3e624e40f859eebc858ff8f2e9
+        
         
     )
-    execute_process(COMMAND unzip libtorch-cxx11-abi-shared-with-deps-1.5.0+cpu.zip)
+    #execute_process(COMMAND unzip libtorch-cxx11-abi-shared-with-deps-1.5.0+cpu.zip)
     #execute_process(COMMAND unzip libtorch-shared-with-deps-1.5.0+cpu.zip)
-    
+    execute_process(COMMAND unzip libtorch-cxx11-abi-shared-with-deps-1.7.1+cpu.zip)
     
     
     execute_process(COMMAND mv libtorch ..)
