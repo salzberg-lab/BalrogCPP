@@ -26,7 +26,7 @@ Currently, the bioconda version of Balrog does not take advantage of AVX2 instru
     balrog --help
 
 
-## Compile Balrog from source (HIGHLY RECOMMENDED for now)
+## Compile Balrog from source (HIGHLY RECOMMENDED for now for speed)
 
 ### Install MMseqs2
 Balrog depends on MMseqs2 at runtime to help reduce false positive gene predictions. Fortunately, MMseqs2 is well supported on both Linux and MacOS. Detailed installation instructions for MMseqs2 can be found on the MMseqs2 GitHub [here](https://github.com/soedinglab/MMseqs2#installation)
