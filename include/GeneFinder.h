@@ -9,15 +9,10 @@
 #include <string>
 #include <algorithm>
 #include <unordered_map>
-#include <torch/script.h>
 
 class GeneFinder {
 public:
-    GeneFinder(torch::jit::script::Module &gene_model, torch::jit::script::Module &TIS_model){
-        // models
-        _gene_model = gene_model;
-        _TIS_model = TIS_model;
-
+    GeneFinder(){
         // ORF score parameters
         float max_start_codon = 0;
         if (weight_ATG > max_start_codon){
@@ -32,167 +27,68 @@ public:
         float maxprob = weight_gene_prob + weight_TIS_prob + max_start_codon;
         probthresh = score_threshold * maxprob;
 
-        // amino acid encoding
-        torch::Tensor tensor_L = torch::zeros({1, 21, 1});
-        tensor_L[0][1] += 1;
-        torch::Tensor tensor_V = torch::zeros({1, 21, 1});
-        tensor_V[0][2] += 1;
-        torch::Tensor tensor_I = torch::zeros({1, 21, 1});
-        tensor_I[0][3] += 1;
-        torch::Tensor tensor_M = torch::zeros({1, 21, 1});
-        tensor_M[0][4] += 1;
-        torch::Tensor tensor_C = torch::zeros({1, 21, 1});
-        tensor_C[0][5] += 1;
-        torch::Tensor tensor_A = torch::zeros({1, 21, 1});
-        tensor_A[0][6] += 1;
-        torch::Tensor tensor_G = torch::zeros({1, 21, 1});
-        tensor_G[0][7] += 1;
-        torch::Tensor tensor_S = torch::zeros({1, 21, 1});
-        tensor_S[0][8] += 1;
-        torch::Tensor tensor_T = torch::zeros({1, 21, 1});
-        tensor_T[0][9] += 1;
-        torch::Tensor tensor_P = torch::zeros({1, 21, 1});
-        tensor_P[0][10] += 1;
-        torch::Tensor tensor_F = torch::zeros({1, 21, 1});
-        tensor_F[0][11] += 1;
-        torch::Tensor tensor_Y = torch::zeros({1, 21, 1});
-        tensor_Y[0][12] += 1;
-        torch::Tensor tensor_W = torch::zeros({1, 21, 1});
-        tensor_W[0][13] += 1;
-        torch::Tensor tensor_E = torch::zeros({1, 21, 1});
-        tensor_E[0][14] += 1;
-        torch::Tensor tensor_D = torch::zeros({1, 21, 1});
-        tensor_D[0][15] += 1;
-        torch::Tensor tensor_N = torch::zeros({1, 21, 1});
-        tensor_N[0][16] += 1;
-        torch::Tensor tensor_Q = torch::zeros({1, 21, 1});
-        tensor_Q[0][17] += 1;
-        torch::Tensor tensor_K = torch::zeros({1, 21, 1});
-        tensor_K[0][18] += 1;
-        torch::Tensor tensor_R = torch::zeros({1, 21, 1});
-        tensor_R[0][19] += 1;
-        torch::Tensor tensor_H = torch::zeros({1, 21, 1});
-        tensor_H[0][20] += 1;
-        torch::Tensor tensor_null = torch::zeros({1, 21, 1});
-
         // translation table encoding, 5' to 3' on DNA sense strand
-        trantab_standard.insert({"TTT", std::make_pair('F', tensor_F)});
-        trantab_standard.insert({"TTC", std::make_pair('F', tensor_F)});
-        trantab_standard.insert({"TTA", std::make_pair('L', tensor_L)});
-        trantab_standard.insert({"TTG", std::make_pair('L', tensor_L)});
-        trantab_standard.insert({"CTT", std::make_pair('L', tensor_L)});
-        trantab_standard.insert({"CTC", std::make_pair('L', tensor_L)});
-        trantab_standard.insert({"CTA", std::make_pair('L', tensor_L)});
-        trantab_standard.insert({"CTG", std::make_pair('L', tensor_L)});
-        trantab_standard.insert({"ATT", std::make_pair('I', tensor_I)});
-        trantab_standard.insert({"ATC", std::make_pair('I', tensor_I)});
-        trantab_standard.insert({"ATA", std::make_pair('I', tensor_I)});
-        trantab_standard.insert({"ATG", std::make_pair('M', tensor_M)});
-        trantab_standard.insert({"GTT", std::make_pair('V', tensor_V)});
-        trantab_standard.insert({"GTC", std::make_pair('V', tensor_V)});
-        trantab_standard.insert({"GTA", std::make_pair('V', tensor_V)});
-        trantab_standard.insert({"GTG", std::make_pair('V', tensor_V)});
-        trantab_standard.insert({"TCT", std::make_pair('S', tensor_S)});
-        trantab_standard.insert({"TCC", std::make_pair('S', tensor_S)});
-        trantab_standard.insert({"TCA", std::make_pair('S', tensor_S)});
-        trantab_standard.insert({"TCG", std::make_pair('S', tensor_S)});
-        trantab_standard.insert({"CCT", std::make_pair('P', tensor_P)});
-        trantab_standard.insert({"CCC", std::make_pair('P', tensor_P)});
-        trantab_standard.insert({"CCA", std::make_pair('P', tensor_P)});
-        trantab_standard.insert({"CCG", std::make_pair('P', tensor_P)});
-        trantab_standard.insert({"ACT", std::make_pair('T', tensor_T)});
-        trantab_standard.insert({"ACC", std::make_pair('T', tensor_T)});
-        trantab_standard.insert({"ACA", std::make_pair('T', tensor_T)});
-        trantab_standard.insert({"ACG", std::make_pair('T', tensor_T)});
-        trantab_standard.insert({"GCT", std::make_pair('A', tensor_A)});
-        trantab_standard.insert({"GCC", std::make_pair('A', tensor_A)});
-        trantab_standard.insert({"GCA", std::make_pair('A', tensor_A)});
-        trantab_standard.insert({"GCG", std::make_pair('A', tensor_A)});
-        trantab_standard.insert({"TAT", std::make_pair('Y', tensor_Y)});
-        trantab_standard.insert({"TAC", std::make_pair('Y', tensor_Y)});
-        trantab_standard.insert({"CAT", std::make_pair('H', tensor_H)});
-        trantab_standard.insert({"CAC", std::make_pair('H', tensor_H)});
-        trantab_standard.insert({"CAA", std::make_pair('Q', tensor_Q)});
-        trantab_standard.insert({"CAG", std::make_pair('Q', tensor_Q)});
-        trantab_standard.insert({"AAT", std::make_pair('N', tensor_N)});
-        trantab_standard.insert({"AAC", std::make_pair('N', tensor_N)});
-        trantab_standard.insert({"AAA", std::make_pair('K', tensor_K)});
-        trantab_standard.insert({"AAG", std::make_pair('K', tensor_K)});
-        trantab_standard.insert({"GAT", std::make_pair('D', tensor_D)});
-        trantab_standard.insert({"GAC", std::make_pair('D', tensor_D)});
-        trantab_standard.insert({"GAA", std::make_pair('E', tensor_E)});
-        trantab_standard.insert({"GAG", std::make_pair('E', tensor_E)});
-        trantab_standard.insert({"TGT", std::make_pair('C', tensor_C)});
-        trantab_standard.insert({"TGC", std::make_pair('C', tensor_C)});
-        trantab_standard.insert({"TGG", std::make_pair('W', tensor_W)});
-        trantab_standard.insert({"CGT", std::make_pair('R', tensor_R)});
-        trantab_standard.insert({"CGC", std::make_pair('R', tensor_R)});
-        trantab_standard.insert({"CGA", std::make_pair('R', tensor_R)});
-        trantab_standard.insert({"CGG", std::make_pair('R', tensor_R)});
-        trantab_standard.insert({"AGT", std::make_pair('S', tensor_S)});
-        trantab_standard.insert({"AGC", std::make_pair('S', tensor_S)});
-        trantab_standard.insert({"AGA", std::make_pair('R', tensor_R)});
-        trantab_standard.insert({"AGG", std::make_pair('R', tensor_R)});
-        trantab_standard.insert({"GGT", std::make_pair('G', tensor_G)});
-        trantab_standard.insert({"GGC", std::make_pair('G', tensor_G)});
-        trantab_standard.insert({"GGA", std::make_pair('G', tensor_G)});
-        trantab_standard.insert({"GGG", std::make_pair('G', tensor_G)});
-
-        // nucleotide encoding
-        torch::Tensor tensor_nucA = torch::zeros({1, 4, 1}); // TODO ensure having a single 0-hot category in a onehot encoded TCN model doesnt impact performance, may help to retrain TIS model with full one-hot encoding
-        torch::Tensor tensor_nucT = torch::zeros({1, 4, 1});
-        tensor_nucT[0][1] += 1;
-        torch::Tensor tensor_nucG = torch::zeros({1, 4, 1});
-        tensor_nucG[0][2] += 1;
-        torch::Tensor tensor_nucC = torch::zeros({1, 4, 1});
-        tensor_nucC[0][3] += 1;
-
-        // nucleotide table, on DNA sense strand
-        nuctab.insert({'A', tensor_nucA});
-        nuctab.insert({'T', tensor_nucT});
-        nuctab.insert({'G', tensor_nucG});
-        nuctab.insert({'C', tensor_nucC});
-
-        // hardcoded linear model weights and bias from trained gene model
-        gene_model_linear_weights = torch::empty(32);
-        int i = 0;
-        for (double x : {0.3667307496070862,
-                        0.644554615020752,
-                        -0.8310428261756897,
-                        0.6387593150138855,
-                        -0.8136463761329651,
-                        0.5082396864891052,
-                        0.49443182349205017,
-                        -0.5467190146446228,
-                        0.6815416216850281,
-                        -0.6435322761535645,
-                        -0.5412205457687378,
-                        0.48874253034591675,
-                        0.41401681303977966,
-                        0.44753748178482056,
-                        0.4844626188278198,
-                        0.5019670128822327,
-                        0.5385213494300842,
-                        -0.45349496603012085,
-                        0.16833889484405518,
-                        -0.520717442035675,
-                        -0.47433432936668396,
-                        -0.5133400559425354,
-                        -0.9626453518867493,
-                        0.5767906308174133,
-                        -0.4973398447036743,
-                        0.4504794478416443,
-                        0.4339512884616852,
-                        -0.7323018908500671,
-                        0.5616238117218018,
-                        0.4348728656768799,
-                        0.4719271659851074,
-                        -0.4932844340801239}){
-            gene_model_linear_weights[i] = x;
-            ++i;
-        }
-        gene_model_linear_bias = 0.19441358745098114;
-
+        trantab_standard.insert({"TTT", 'F'});
+        trantab_standard.insert({"TTC", 'F'});
+        trantab_standard.insert({"TTA", 'L'});
+        trantab_standard.insert({"TTG", 'L'});
+        trantab_standard.insert({"CTT", 'L'});
+        trantab_standard.insert({"CTC", 'L'});
+        trantab_standard.insert({"CTA", 'L'});
+        trantab_standard.insert({"CTG", 'L'});
+        trantab_standard.insert({"ATT", 'I'});
+        trantab_standard.insert({"ATC", 'I'});
+        trantab_standard.insert({"ATA", 'I'});
+        trantab_standard.insert({"ATG", 'M'});
+        trantab_standard.insert({"GTT", 'V'});
+        trantab_standard.insert({"GTC", 'V'});
+        trantab_standard.insert({"GTA", 'V'});
+        trantab_standard.insert({"GTG", 'V'});
+        trantab_standard.insert({"TCT", 'S'});
+        trantab_standard.insert({"TCC", 'S'});
+        trantab_standard.insert({"TCA", 'S'});
+        trantab_standard.insert({"TCG", 'S'});
+        trantab_standard.insert({"CCT", 'P'});
+        trantab_standard.insert({"CCC", 'P'});
+        trantab_standard.insert({"CCA", 'P'});
+        trantab_standard.insert({"CCG", 'P'});
+        trantab_standard.insert({"ACT", 'T'});
+        trantab_standard.insert({"ACC", 'T'});
+        trantab_standard.insert({"ACA", 'T'});
+        trantab_standard.insert({"ACG", 'T'});
+        trantab_standard.insert({"GCT", 'A'});
+        trantab_standard.insert({"GCC", 'A'});
+        trantab_standard.insert({"GCA", 'A'});
+        trantab_standard.insert({"GCG", 'A'});
+        trantab_standard.insert({"TAT", 'Y'});
+        trantab_standard.insert({"TAC", 'Y'});
+        trantab_standard.insert({"CAT", 'H'});
+        trantab_standard.insert({"CAC", 'H'});
+        trantab_standard.insert({"CAA", 'Q'});
+        trantab_standard.insert({"CAG", 'Q'});
+        trantab_standard.insert({"AAT", 'N'});
+        trantab_standard.insert({"AAC", 'N'});
+        trantab_standard.insert({"AAA", 'K'});
+        trantab_standard.insert({"AAG", 'K'});
+        trantab_standard.insert({"GAT", 'D'});
+        trantab_standard.insert({"GAC", 'D'});
+        trantab_standard.insert({"GAA", 'E'});
+        trantab_standard.insert({"GAG", 'E'});
+        trantab_standard.insert({"TGT", 'C'});
+        trantab_standard.insert({"TGC", 'C'});
+        trantab_standard.insert({"TGG", 'W'});
+        trantab_standard.insert({"CGT", 'R'});
+        trantab_standard.insert({"CGC", 'R'});
+        trantab_standard.insert({"CGA", 'R'});
+        trantab_standard.insert({"CGG", 'R'});
+        trantab_standard.insert({"AGT", 'S'});
+        trantab_standard.insert({"AGC", 'S'});
+        trantab_standard.insert({"AGA", 'R'});
+        trantab_standard.insert({"AGG", 'R'});
+        trantab_standard.insert({"GGT", 'G'});
+        trantab_standard.insert({"GGC", 'G'});
+        trantab_standard.insert({"GGA", 'G'});
+        trantab_standard.insert({"GGG", 'G'});
     }
     ~GeneFinder() = default;
 
@@ -230,10 +126,6 @@ private:
     const float divergent_penalty_per_base = 3.3830814940689975; // 5' 5' overlap
 
     // prelims
-    torch::jit::script::Module _gene_model;
-    torch::jit::script::Module _TIS_model;
-    torch::Tensor gene_model_linear_weights;
-    double gene_model_linear_bias;
     std::string seq;
     int trantab;
     int minimum_length;
@@ -245,7 +137,7 @@ private:
     void complement(std::string &s, std::string &comp);
 
     void find_ORFs();
-    void translate_and_tensorize_seq();
+    void translate_seq();
 
     void score_ORFs();
 
@@ -273,13 +165,6 @@ private:
     std::string seq_translated_r1;
     std::string seq_translated_r2;
 
-    std::vector<torch::Tensor> seq_tensorized_f0;
-    std::vector<torch::Tensor> seq_tensorized_f1;
-    std::vector<torch::Tensor> seq_tensorized_f2;
-    std::vector<torch::Tensor> seq_tensorized_r0;
-    std::vector<torch::Tensor> seq_tensorized_r1;
-    std::vector<torch::Tensor> seq_tensorized_r2;
-
     std::vector<std::pair<int, int>> ORF_coords;
     std::vector<int> ORF_lengths;
     std::vector<std::string> ORF_protein_seq_3to5_nostart_nostop;
@@ -295,10 +180,7 @@ private:
     std::vector<double> MMSeqs2_scores;
 
     // translation table
-    std::unordered_map<std::string, std::pair<char, torch::Tensor>> trantab_standard;
-
-    // nucelotide encoding table
-    std::unordered_map<char, torch::Tensor> nuctab;
+    std::unordered_map<std::string, char> trantab_standard;
 
 };
 

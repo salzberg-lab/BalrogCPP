@@ -5,6 +5,7 @@
 #include "FastaReader.h"
 #include "GeneFinder.h"
 #include <cmrc/cmrc.hpp>
+#include <fstream>
 
 CMRC_DECLARE(cmakeresources);
 
@@ -50,7 +51,6 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-
     // PREPARE MODELS AND DATA
     // open embedded filesystem to load models and data
     auto fs = cmrc::cmakeresources::get_filesystem();
@@ -69,57 +69,20 @@ int main(int argc, char* argv[]) {
     if (result["verbose"].as<bool>()){
         std::cout << "Importing gene model..." << std::endl;
     }
-    // write gene model from embedded filesystem to tmp file
-    std::ofstream stream;
-    char* tmp_genemodel_path = std::tmpnam(nullptr);
-    auto rc = fs.open("gene_model_v1.0.pt");
-    stream.open(tmp_genemodel_path);
-    auto it = rc.begin();
-    while (it != rc.end()){
-        stream << *it;
-        it ++;
-    }
-    stream.close();
-    // load gene model using jit
-    torch::jit::script::Module gene_model;
-    try {
-        gene_model = torch::jit::load(tmp_genemodel_path);
-    }
-    catch (const c10::Error& e) {
-        std::cerr << "error loading the LibTorch gene model\n";
-        remove(tmp_genemodel_path);
-        return 1;
-    }
-    // clean up temp file
-    remove(tmp_genemodel_path);
-
-    // load LibTorch jit traced TIS model
-    if (result["verbose"].as<bool>()){
-        std::cout << "Importing TIS model..." << std::endl;
-    }
-    char* tmp_TISmodel_path = std::tmpnam(nullptr);
-    rc = fs.open("TIS_model_v1.0.pt");
-    stream.open(tmp_TISmodel_path);
-    it = rc.begin();
-    while (it != rc.end()){
-        stream << *it;
-        it ++;
-    }
-    stream.close();
-    // load TIS model using jit
-    torch::jit::script::Module TIS_model;
-    try {
-        TIS_model = torch::jit::load(tmp_TISmodel_path);
-    }
-    catch (const c10::Error& e) {
-        std::cerr << "error loading the LibTorch TIS model\n";
-        remove(tmp_TISmodel_path);
-        return 1;
-    }
-    // clean up temp file
-    remove(tmp_TISmodel_path);
+//    // write gene model from embedded filesystem to tmp file
+//    std::ofstream stream;
+//    char* tmp_genemodel_path = std::tmpnam(nullptr);
+//    auto rc = fs.open("gene_model_v1.0.pt");
+//    stream.open(tmp_genemodel_path);
+//    auto it = rc.begin();
+//    while (it != rc.end()){
+//        stream << *it;
+//        it ++;
+//    }
+//    stream.close();
 
     // load reference gene sequence
+    std::ofstream stream;
     if (result["mmseqs"].as<bool>()){
         std::string ref_fasta_path = tmp_dir + "/reference_genes.fasta";
         std::string ref_db_path = tmp_dir + "/reference_genes.db";
@@ -137,9 +100,9 @@ int main(int argc, char* argv[]) {
                 std::cout << "Loading reference genes..." << std::endl;
             }
             char *tmp_reference_path = std::tmpnam(nullptr);
-            rc = fs.open("reference_genes.fasta");
+            auto rc = fs.open("reference_genes.fasta");
             stream.open(tmp_reference_path);
-            it = rc.begin();
+            auto it = rc.begin();
             while (it != rc.end()) {
                 stream << *it;
                 it++;
@@ -199,7 +162,7 @@ int main(int argc, char* argv[]) {
     for (std::string seq : seq_vec){
         ++i;
 
-        GeneFinder gf(gene_model, TIS_model);
+        GeneFinder gf;
         if (result["verbose"].as<bool>()) {
             std::cout << std::endl << "contig " << i << " of " << seq_vec.size() << " : length " << seq.length() << std::endl;
         }
