@@ -5,14 +5,22 @@
 #ifndef BALROG_GENEFINDER_H
 #define BALROG_GENEFINDER_H
 
+#include <utility>
 #include <vector>
 #include <string>
 #include <algorithm>
 #include <unordered_map>
+#include <random>
 
 class GeneFinder {
 public:
-    GeneFinder(){
+    explicit GeneFinder(std::string path){
+        // temporary directory for all tmp files
+        tmp_dir = std::move(path);
+        if (tmp_dir.back() != '/'){
+            tmp_dir += "/";
+        }
+
         // ORF score parameters
         float max_start_codon = 0;
         if (weight_ATG > max_start_codon){
@@ -28,6 +36,7 @@ public:
         probthresh = score_threshold * maxprob;
 
         // translation table encoding, 5' to 3' on DNA sense strand
+        // NOTE: lazily converted from LibTorch tensor pair encoding, TODO translation can be much faster if needed
         trantab_standard.insert({"TTT", 'F'});
         trantab_standard.insert({"TTC", 'F'});
         trantab_standard.insert({"TTA", 'L'});
@@ -107,6 +116,7 @@ public:
             bool mmseqs);
 private:
     // general parameters
+    std::string tmp_dir;
     bool verbosity;
     const int k_seengene = 10;
     const int multimer_threshold = 2;
@@ -150,6 +160,8 @@ private:
     void get_kmer_filter_scores();
     void run_mmseqs();
 
+    int mt_rand();
+
     // gene info
     std::vector<std::pair<int, int>> *_gene_coord;
     std::vector<bool> *_gene_strand;
@@ -167,7 +179,7 @@ private:
 
     std::vector<std::pair<int, int>> ORF_coords;
     std::vector<int> ORF_lengths;
-    std::vector<std::string> ORF_protein_seq_3to5_nostart_nostop;
+    std::vector<std::vector<char>> ORF_protein_seq_3to5_nostart_nostop;
     std::vector<std::string> ORF_start_codon;
 
     // calculated values

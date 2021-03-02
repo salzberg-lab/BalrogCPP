@@ -15,6 +15,7 @@ int main(int argc, char* argv[]) {
     options.add_options()
             ("i, in", "Path to input fasta or gzipped fasta", cxxopts::value<std::string>())
             ("o, out", "Path to output annotation", cxxopts::value<std::string>())
+            ("temp", "Directory to store temp files", cxxopts::value<std::string>()->default_value("/tmp"))
             ("max-overlap", "Maximum allowable overlap between genes in nucleotides", cxxopts::value<int>()->default_value("60"))
             ("min-length", "Minimum allowable gene length in nucleotides", cxxopts::value<int>()->default_value("90"))
             ("table", "Nucleotide to amino acid translation table. 11 for most bacteria/archaea, 4 for Mycoplasma/Spiroplasma.",
@@ -22,9 +23,9 @@ int main(int argc, char* argv[]) {
             ("max-connections", "Maximum number of forward connections in the directed acyclic graph used to find a set of coherent genes in each genome.",
                     cxxopts::value<int>()->default_value("50"))
             ("gene-batch-size", "Batch size for the temporal convolutional network used to score genes.",
-                    cxxopts::value<int>()->default_value("200"))
+                    cxxopts::value<int>()->default_value("128"))
             ("TIS-batch-size", "Batch size for the temporal convolutional network used to score TIS.",
-                    cxxopts::value<int>()->default_value("5000"))
+                    cxxopts::value<int>()->default_value("1024"))
             ("verbose", "Verbose output, set --verbose=false to suppress output text", cxxopts::value<bool>()->default_value("true"))
             ("mmseqs", "Use MMseqs2 to reduce false positive rate, set --mmseqs=false to run without mmseqs", cxxopts::value<bool>()->default_value("true"))
             ("clear-cache", "Force MMseqs2 to remake index, set --clear-cache=true to remake mmseqs reference database and index files", cxxopts::value<bool>()->default_value("false"))
@@ -40,7 +41,7 @@ int main(int argc, char* argv[]) {
 
     // check input and output paths
     if (not result.count("in") or not result.count("out")){
-        std::cout << "Please specify input and output paths" << std::endl;
+        std::cout << "Please specify input path (-i) and output path (-o)" << std::endl;
         return 1;
     }
 
@@ -162,7 +163,7 @@ int main(int argc, char* argv[]) {
     for (std::string seq : seq_vec){
         ++i;
 
-        GeneFinder gf;
+        GeneFinder gf(result["temp"].as<std::string>());
         if (result["verbose"].as<bool>()) {
             std::cout << std::endl << "contig " << i << " of " << seq_vec.size() << " : length " << seq.length() << std::endl;
         }

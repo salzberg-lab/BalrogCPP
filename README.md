@@ -12,10 +12,8 @@ Preprint available on bioRxiv [here](https://www.biorxiv.org/content/10.1101/202
 
 PLOS Computational Biology publication coming soon...
 
-## Install Balrog via conda (relatively slow performance)
-Currently, the bioconda version of Balrog does not take advantage of AVX2 instructions due to known PyTorch/LibTorch issues and is ~5-10x slower than the version built from source. We are working on a fix.
-
-    conda create -n balrog_env python=3.7 -y
+## Install Balrog via conda
+    conda create -n balrog_env -y
     
     conda activate balrog_env
     (alternatively: "source activate balrog_env")
@@ -26,7 +24,8 @@ Currently, the bioconda version of Balrog does not take advantage of AVX2 instru
     balrog --help
 
 
-## Compile Balrog from source (HIGHLY RECOMMENDED for now for speed)
+## Compile Balrog from source
+Building from source allows balrog to use LibTorch (the C++ API of PyTorch), thereby eliminating the requirement for Python and PyTorch. 
 
 ### Install MMseqs2
 Balrog depends on MMseqs2 at runtime to help reduce false positive gene predictions. Fortunately, MMseqs2 is well supported on both Linux and MacOS. Detailed installation instructions for MMseqs2 can be found on the MMseqs2 GitHub [here](https://github.com/soedinglab/MMseqs2#installation)
@@ -48,6 +47,8 @@ Balrog depends on MMseqs2 at runtime to help reduce false positive gene predicti
     # Linux
     git clone https://github.com/salzberg-lab/BalrogCPP
     cd BalrogCPP
+    git fetch origin
+    git checkout -b libtorch_build origin/libtorch_build
     mkdir build
     cd build
     cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=${PREFIX} ..
@@ -57,6 +58,8 @@ Balrog depends on MMseqs2 at runtime to help reduce false positive gene predicti
     # MacOS
     git clone https://github.com/salzberg-lab/BalrogCPP
     cd BalrogCPP
+    git fetch origin
+    git checkout -b libtorch_build origin/libtorch_build
     mkdir build
     cd build
     cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=${PREFIX} ..
