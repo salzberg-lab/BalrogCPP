@@ -5,6 +5,7 @@
 #include "FastaReader.h"
 #include "GeneFinder.h"
 #include <cmrc/cmrc.hpp>
+#include <fstream>
 
 CMRC_DECLARE(cmakeresources);
 
@@ -14,6 +15,7 @@ int main(int argc, char* argv[]) {
     options.add_options()
             ("i, in", "Path to input fasta or gzipped fasta", cxxopts::value<std::string>())
             ("o, out", "Path to output annotation", cxxopts::value<std::string>())
+            ("temp", "Directory to store temp files", cxxopts::value<std::string>()->default_value("/tmp"))
             ("max-overlap", "Maximum allowable overlap between genes in nucleotides", cxxopts::value<int>()->default_value("60"))
             ("min-length", "Minimum allowable gene length in nucleotides", cxxopts::value<int>()->default_value("90"))
             ("table", "Nucleotide to amino acid translation table. 11 for most bacteria/archaea, 4 for Mycoplasma/Spiroplasma.",
@@ -21,9 +23,9 @@ int main(int argc, char* argv[]) {
             ("max-connections", "Maximum number of forward connections in the directed acyclic graph used to find a set of coherent genes in each genome.",
                     cxxopts::value<int>()->default_value("50"))
             ("gene-batch-size", "Batch size for the temporal convolutional network used to score genes.",
-                    cxxopts::value<int>()->default_value("200"))
+                    cxxopts::value<int>()->default_value("128"))
             ("TIS-batch-size", "Batch size for the temporal convolutional network used to score TIS.",
-                    cxxopts::value<int>()->default_value("5000"))
+                    cxxopts::value<int>()->default_value("1024"))
             ("verbose", "Verbose output, set --verbose=false to suppress output text", cxxopts::value<bool>()->default_value("true"))
             ("mmseqs", "Use MMseqs2 to reduce false positive rate, set --mmseqs=false to run without mmseqs", cxxopts::value<bool>()->default_value("true"))
             ("clear-cache", "Force MMseqs2 to remake index, set --clear-cache=true to remake mmseqs reference database and index files", cxxopts::value<bool>()->default_value("false"))
@@ -39,7 +41,7 @@ int main(int argc, char* argv[]) {
 
     // check input and output paths
     if (not result.count("in") or not result.count("out")){
-        std::cout << "Please specify input and output paths" << std::endl;
+        std::cout << "Please specify input path (-i) and output path (-o)" << std::endl;
         return 1;
     }
 
@@ -49,7 +51,6 @@ int main(int argc, char* argv[]) {
         std::cout << "Only translation tables 11 and 4 are currently implemented. Please open a GitHub issue if you need another." << std::endl;
         return 1;
     }
-
 
     // PREPARE MODELS AND DATA
     // open embedded filesystem to load models and data
@@ -69,57 +70,20 @@ int main(int argc, char* argv[]) {
     if (result["verbose"].as<bool>()){
         std::cout << "Importing gene model..." << std::endl;
     }
-    // write gene model from embedded filesystem to tmp file
-    std::ofstream stream;
-    char* tmp_genemodel_path = std::tmpnam(nullptr);
-    auto rc = fs.open("gene_model_v1.0.pt");
-    stream.open(tmp_genemodel_path);
-    auto it = rc.begin();
-    while (it != rc.end()){
-        stream << *it;
-        it ++;
-    }
-    stream.close();
-    // load gene model using jit
-    torch::jit::script::Module gene_model;
-    try {
-        gene_model = torch::jit::load(tmp_genemodel_path);
-    }
-    catch (const c10::Error& e) {
-        std::cerr << "error loading the LibTorch gene model\n";
-        remove(tmp_genemodel_path);
-        return 1;
-    }
-    // clean up temp file
-    remove(tmp_genemodel_path);
-
-    // load LibTorch jit traced TIS model
-    if (result["verbose"].as<bool>()){
-        std::cout << "Importing TIS model..." << std::endl;
-    }
-    char* tmp_TISmodel_path = std::tmpnam(nullptr);
-    rc = fs.open("TIS_model_v1.0.pt");
-    stream.open(tmp_TISmodel_path);
-    it = rc.begin();
-    while (it != rc.end()){
-        stream << *it;
-        it ++;
-    }
-    stream.close();
-    // load TIS model using jit
-    torch::jit::script::Module TIS_model;
-    try {
-        TIS_model = torch::jit::load(tmp_TISmodel_path);
-    }
-    catch (const c10::Error& e) {
-        std::cerr << "error loading the LibTorch TIS model\n";
-        remove(tmp_TISmodel_path);
-        return 1;
-    }
-    // clean up temp file
-    remove(tmp_TISmodel_path);
+//    // write gene model from embedded filesystem to tmp file
+//    std::ofstream stream;
+//    char* tmp_genemodel_path = std::tmpnam(nullptr);
+//    auto rc = fs.open("gene_model_v1.0.pt");
+//    stream.open(tmp_genemodel_path);
+//    auto it = rc.begin();
+//    while (it != rc.end()){
+//        stream << *it;
+//        it ++;
+//    }
+//    stream.close();
 
     // load reference gene sequence
+    std::ofstream stream;
     if (result["mmseqs"].as<bool>()){
         std::string ref_fasta_path = tmp_dir + "/reference_genes.fasta";
         std::string ref_db_path = tmp_dir + "/reference_genes.db";
@@ -137,9 +101,9 @@ int main(int argc, char* argv[]) {
                 std::cout << "Loading reference genes..." << std::endl;
             }
             char *tmp_reference_path = std::tmpnam(nullptr);
-            rc = fs.open("reference_genes.fasta");
+            auto rc = fs.open("reference_genes.fasta");
             stream.open(tmp_reference_path);
-            it = rc.begin();
+            auto it = rc.begin();
             while (it != rc.end()) {
                 stream << *it;
                 it++;
@@ -199,7 +163,7 @@ int main(int argc, char* argv[]) {
     for (std::string seq : seq_vec){
         ++i;
 
-        GeneFinder gf(gene_model, TIS_model);
+        GeneFinder gf(result["temp"].as<std::string>());
         if (result["verbose"].as<bool>()) {
             std::cout << std::endl << "contig " << i << " of " << seq_vec.size() << " : length " << seq.length() << std::endl;
         }
