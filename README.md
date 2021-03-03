@@ -18,10 +18,17 @@ PLOS Computational Biology publication coming soon...
     conda activate balrog_env
     (alternatively: "source activate balrog_env")
     
-    conda install balrog -c conda-forge -c bioconda -y
-    conda install pytorch=1.7.1 -c conda-forge -y
+    conda install balrog mmseqs2 -c conda-forge -c bioconda -y
+    conda install pytorch torchvision torchaudio cpuonly -c pytorch -y
+    (alternatively for macOS: "conda install pytorch torchvision torchaudio -c pytorch")
     
     balrog --help
+    
+## Use Balrog with a GPU (fastest option)
+A GPU will accelerate Balrog significantly. Balrog and MMseqs2 can be installed the same as above, but pytorch will need to be installed according to system-specific instructions here: https://pytorch.org/get-started/locally/
+
+    # example pytorch installation with cudatoolkit 11
+    conda install pytorch torchvision torchaudio cudatoolkit=11 -c pytorch -y
 
 
 ## Compile Balrog from source
