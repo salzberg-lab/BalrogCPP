@@ -25,7 +25,7 @@ PLOS Computational Biology publication coming soon...
     balrog --help
     
 ## Use Balrog with a GPU (fastest option)
-A GPU will accelerate Balrog significantly. Balrog and MMseqs2 can be installed the same as above, but pytorch will need to be installed according to system-specific instructions here: https://pytorch.org/get-started/locally/
+A GPU will accelerate Balrog significantly. Balrog and MMseqs2 can be installed the same as above, but PyTorch will need to be installed according to system-specific instructions here: https://pytorch.org/get-started/locally/
 
     # example pytorch installation with cudatoolkit 11
     conda install pytorch torchvision torchaudio cudatoolkit=11 -c pytorch -y
