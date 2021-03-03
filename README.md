@@ -48,7 +48,7 @@ Balrog depends on MMseqs2 at runtime to help reduce false positive gene predicti
     git clone https://github.com/salzberg-lab/BalrogCPP
     cd BalrogCPP
     git fetch origin
-    git checkout -b libtorch_build origin/libtorch_build
+    git checkout -b libtorch_local origin/libtorch_local
     mkdir build
     cd build
     cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=${PREFIX} ..
@@ -59,7 +59,7 @@ Balrog depends on MMseqs2 at runtime to help reduce false positive gene predicti
     git clone https://github.com/salzberg-lab/BalrogCPP
     cd BalrogCPP
     git fetch origin
-    git checkout -b libtorch_build origin/libtorch_build
+    git checkout -b libtorch_local origin/libtorch_local
     mkdir build
     cd build
     cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=${PREFIX} ..
