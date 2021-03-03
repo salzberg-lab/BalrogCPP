@@ -36,20 +36,20 @@ int main(int argc, char* argv[]) {
     // check validity and display help
     if (result.count("help") or not result.count("in")){
         std::cout << options.help() << std::endl;
-        return 1;
+        return 0;
     }
 
     // check input and output paths
     if (not result.count("in") or not result.count("out")){
         std::cout << "Please specify input path (-i) and output path (-o)" << std::endl;
-        return 1;
+        return 0;
     }
 
     // check translation table
     int table = result["table"].as<int>();
     if (table != 11 and table != 4){
         std::cout << "Only translation tables 11 and 4 are currently implemented. Please open a GitHub issue if you need another." << std::endl;
-        return 1;
+        return 0;
     }
 
     // PREPARE MODELS AND DATA

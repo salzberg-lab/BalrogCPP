@@ -995,7 +995,6 @@ void GeneFinder::get_TIS_model_scores(){
 
     // save to temp file
     std::string tmp_TIS_prob_path = tmp_dir + "balrog.tmp" + std::to_string(mt_rand());
-    std::cout << tmp_TIS_prob_path << std::endl;
 
     py_score_TIS.emplace_back("with open(\"" + tmp_TIS_prob_path + "\", \"wt\") as f :");
     py_score_TIS.emplace_back("    for prob in y_pred_TIS:\n"
