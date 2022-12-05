@@ -13,7 +13,7 @@ Preprint available on bioRxiv [here](https://www.biorxiv.org/content/10.1101/202
 PLOS Computational Biology publication coming soon...
 
 ## Install Balrog via conda
-    conda create -n balrog_env pyhton=3.7 -y
+    conda create -n balrog_env python=3.7 -y
     
     conda activate balrog_env
     (alternatively: "source activate balrog_env")
